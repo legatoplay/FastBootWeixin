@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,6 +130,15 @@ public class WxProperties implements InitializingBean {
      */
     private Server server = new Server();
 
+    /**
+     * 使用企业微信
+     */
+    private boolean useWorkWx = false;
+    /**
+     * 企业微信配置
+     */
+    private Work work;
+
     public boolean isEncrypt() {
         return encrypt;
     }
@@ -158,8 +166,9 @@ public class WxProperties implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         Assert.isTrue(!this.encrypt ||
-                (this.encodingAesKey != null && this.encodingAesKey.length() == ENCODING_AED_KEY_LENGTH),
+                        (this.encodingAesKey != null && this.encodingAesKey.length() == ENCODING_AED_KEY_LENGTH),
                 "当加密配置为true时，必须存在encodingAesKey，且长度必须为43，请检查配置");
+        Assert.isTrue(!this.useWorkWx || this.work != null, "当开启企业号配置时，必须配置企业号参数");
         Wx.Environment.instance().setWxAppId(this.appId);
         Wx.Environment.instance().setWxAppSecret(this.appSecret);
         Wx.Environment.instance().setWxToken(this.token);
@@ -167,6 +176,8 @@ public class WxProperties implements InitializingBean {
         Wx.Environment.instance().setEncodingAesKey(this.encodingAesKey);
         // 优先使用callbackUrl
         Wx.Environment.instance().setCallbackUrl(StringUtils.isEmpty(this.callbackUrl) ? this.callbackDomain : this.callbackUrl);
+        Wx.Environment.instance().setUseWorkWx(this.useWorkWx);
+        Wx.Environment.instance().setWork(this.work);
     }
 
     public String getCallbackUrl() {
@@ -279,6 +290,22 @@ public class WxProperties implements InitializingBean {
 
     public void setAppSecret(String appSecret) {
         this.appSecret = appSecret;
+    }
+
+    public boolean isUseWorkWx() {
+        return useWorkWx;
+    }
+
+    public void setUseWorkWx(boolean useWorkWx) {
+        this.useWorkWx = useWorkWx;
+    }
+
+    public Work getWork() {
+        return work;
+    }
+
+    public void setWork(Work work) {
+        this.work = work;
     }
 
     @Override
@@ -534,6 +561,9 @@ public class WxProperties implements InitializingBean {
 
         private String getUserInfoByUserAccessToken = "sns/userinfo";
 
+        private String workHost = "qyapi.weixin.qq.com";
+        private String workToken = "cgi-bin/gettoken";
+
         public String getHost() {
             return this.host;
         }
@@ -564,6 +594,22 @@ public class WxProperties implements InitializingBean {
 
         public void setGetUserInfoByUserAccessToken(String getUserInfoByUserAccessToken) {
             this.getUserInfoByUserAccessToken = getUserInfoByUserAccessToken;
+        }
+
+        public String getWorkHost() {
+            return workHost;
+        }
+
+        public void setWorkHost(String workHost) {
+            this.workHost = workHost;
+        }
+
+        public String getWorkToken() {
+            return workToken;
+        }
+
+        public void setWorkToken(String workToken) {
+            this.workToken = workToken;
         }
     }
 
@@ -709,6 +755,55 @@ public class WxProperties implements InitializingBean {
 
         public void setMaxActiveLimit(int maxActiveLimit) {
             this.maxActiveLimit = maxActiveLimit;
+        }
+    }
+
+    public static class Work {
+        /**
+         * 企业ID
+         */
+        private String corpId;
+        /**
+         * 应用凭证密钥
+         */
+        private String corpSecret;
+
+        /**
+         * 企业微信应用id
+         */
+        private String agentId;
+
+        public String getCorpId() {
+            return corpId;
+        }
+
+        public void setCorpId(String corpId) {
+            this.corpId = corpId;
+        }
+
+        public String getCorpSecret() {
+            return corpSecret;
+        }
+
+        public void setCorpSecret(String corpSecret) {
+            this.corpSecret = corpSecret;
+        }
+
+        public String getAgentId() {
+            return agentId;
+        }
+
+        public void setAgentId(String agentId) {
+            this.agentId = agentId;
+        }
+
+        @Override
+        public String toString() {
+            return "Work{" +
+                    "corpId='" + corpId + '\'' +
+                    ", corpSecret='" + corpSecret + '\'' +
+                    ", agentId='" + agentId + '\'' +
+                    '}';
         }
     }
 

@@ -51,6 +51,8 @@ public interface WxApiService {
 
     WxMenus getMenu();
 
+    WxMenu getMenu(@WxApiParam("agentid") String agentId);
+
     void deleteMenu();
 
     String createMenu(@WxApiBody WxMenu menu);
@@ -102,12 +104,14 @@ public interface WxApiService {
 
     /**
      * 批量获取news
+     *
      * @return
      */
     WxNews.PageResult batchGetNews(@WxApiBody WxNews.PageParam param);
 
     /**
      * 批量获取媒体
+     *
      * @return
      */
     WxMedia.PageResult batchGetMedia(@WxApiBody WxMedia.PageParam param);
@@ -141,6 +145,7 @@ public interface WxApiService {
 
     /**
      * 创建二维码
+     *
      * @param wxQrCode 二维码相关参数
      * @return 创建结果
      */
@@ -148,6 +153,7 @@ public interface WxApiService {
 
     /**
      * 长链接转短链接
+     *
      * @param wxShortUrl 链接相关参数
      * @return 转换结果
      */

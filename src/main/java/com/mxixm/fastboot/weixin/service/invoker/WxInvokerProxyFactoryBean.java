@@ -67,7 +67,12 @@ public class WxInvokerProxyFactoryBean<T> implements InitializingBean, MethodInt
     public WxInvokerProxyFactoryBean(Class<T> clazz, WxProperties wxProperties, WxApiExecutor wxApiExecutor) {
         this.clazz = clazz;
         this.wxApiExecutor = wxApiExecutor;
-        this.wxApiTypeInfo = new WxApiTypeInfo(clazz, wxProperties.getUrl().getHost());
+        if (wxProperties.isUseWorkWx()) {
+            this.wxApiTypeInfo = new WxApiTypeInfo(clazz, wxProperties.getUrl().getWorkHost());
+        } else {
+            this.wxApiTypeInfo = new WxApiTypeInfo(clazz, wxProperties.getUrl().getHost());
+        }
+
     }
 
     @Override

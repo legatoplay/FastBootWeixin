@@ -16,6 +16,7 @@
 
 package com.mxixm.fastboot.weixin.module;
 
+import com.mxixm.fastboot.weixin.config.WxProperties;
 import com.mxixm.fastboot.weixin.util.WxUrlUtils;
 import org.springframework.util.StringUtils;
 
@@ -90,6 +91,15 @@ public class Wx {
 
         private String encodingAesKey;
 
+        /**
+         * 使用企业微信
+         */
+        private boolean useWorkWx = false;
+        /**
+         * 企业微信配置
+         */
+        private WxProperties.Work work;
+
         public String getCallbackHost() {
             return callbackUri != null ? callbackUri.getHost() : null;
         }
@@ -161,6 +171,22 @@ public class Wx {
 
         public void setEncodingAesKey(String encodingAesKey) {
             this.encodingAesKey = encodingAesKey;
+        }
+
+        public boolean isUseWorkWx() {
+            return useWorkWx;
+        }
+
+        public void setUseWorkWx(boolean useWorkWx) {
+            this.useWorkWx = useWorkWx;
+        }
+
+        public WxProperties.Work getWork() {
+            return work;
+        }
+
+        public void setWork(WxProperties.Work work) {
+            this.work = work;
         }
     }
 
