@@ -5,7 +5,7 @@
 
     <groupId>com.mxixm</groupId>
     <artifactId>fastboot-weixin</artifactId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>FastBootWeixin</name>
@@ -104,18 +104,32 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>com.sun.xml.bind</groupId>-->
-            <!--<artifactId>jaxb-impl</artifactId>-->
-            <!--<version>2.3.2</version>-->
+        <!--<groupId>com.sun.xml.bind</groupId>-->
+        <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--<version>2.3.2</version>-->
         <!--</dependency>-->
         <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime &ndash;&gt;-->
         <!--<dependency>-->
-            <!--<groupId>com.sun.istack</groupId>-->
-            <!--<artifactId>istack-commons-runtime</artifactId>-->
-            <!--<version>3.0.8</version>-->
+        <!--<groupId>com.sun.istack</groupId>-->
+        <!--<artifactId>istack-commons-runtime</artifactId>-->
+        <!--<version>3.0.8</version>-->
         <!--</dependency>-->
 
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <!--<recommendId>nexus-releases</recommendId>-->
+            <name>Nexus Release Repository</name>
+            <url>http://nexus.goldlib.com/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <!--<recommendId>nexus-snapshots</recommendId>-->
+            <name>Nexus Snapshot Repository</name>
+            <url>http://nexus.goldlib.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <!-- Package as an executable jar -->
     <build>
         <plugins>
@@ -199,18 +213,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>oss</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>oss</id>
-                    <name>Maven Central Staging Repository</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                </repository>
-            </distributionManagement>
         </profile>
     </profiles>
 </project>
