@@ -235,7 +235,7 @@ public class WxMenuManager implements EmbeddedValueResolverAware, ApplicationLis
         try {
             if (Wx.Environment.instance().isUseWorkWx()) {
                 remoteWxMenus = new WxMenus();
-                remoteWxMenus.setWxMenu(wxApiService.getMenu(Wx.Environment.instance().getWork().getAgentId()));
+                remoteWxMenus.setWxMenu(wxApiService.getWorkMenu(Wx.Environment.instance().getWork().getAgentId()));
             } else {
                 remoteWxMenus = wxApiService.getMenu();
             }

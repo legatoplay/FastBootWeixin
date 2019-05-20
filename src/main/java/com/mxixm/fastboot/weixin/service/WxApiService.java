@@ -51,11 +51,15 @@ public interface WxApiService {
 
     WxMenus getMenu();
 
-    WxMenu getMenu(@WxApiParam("agentid") String agentId);
+    WxMenu getWorkMenu(@WxApiParam("agentid") String agentId);
 
     void deleteMenu();
 
+    void deleteWorkMenu(@WxApiParam("agentid") String agentId);
+
     String createMenu(@WxApiBody WxMenu menu);
+
+    String createWorkMenu(@WxApiBody WxMenu menu, @WxApiParam("agentid") String agentId);
 
     WxMedia.TempMediaResult uploadTempMedia(@WxApiParam("type") WxMedia.Type type, @WxApiForm("media") Resource media);
 
@@ -85,6 +89,14 @@ public interface WxApiService {
     WxMedia.MediaResult uploadMedia(@WxApiParam("type") WxMedia.Type type,
                                     @WxApiForm("media") Resource media,
                                     @WxApiForm("description") WxMedia.Video description);
+
+    /**
+     * 企业号上传图片
+     *
+     * @param media
+     * @return
+     */
+    WxMedia.MediaResult uploadWorkImg(@WxApiForm("media") Resource media);
 
     /**
      * 同下面两个地址，没办法，返回类型不同，我也很无奈啊

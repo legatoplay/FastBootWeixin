@@ -22,6 +22,7 @@ import com.mxixm.fastboot.weixin.module.credential.WxAccessToken;
 import com.mxixm.fastboot.weixin.module.user.WxUser;
 import com.mxixm.fastboot.weixin.service.invoker.executor.WxApiTemplate;
 import com.mxixm.fastboot.weixin.web.WxWebUser;
+import com.mxixm.fastboot.weixin.web.WxWebWorkUser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -78,6 +79,14 @@ public class WxBaseService {
         return getWxWebUserByBuilder(builder);
     }
 
+    public WxWebWorkUser getWxWebWorkUserByCode(String token, String code) {
+        UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
+                .scheme("https").host(wxProperties.getUrl().getWorkHost()).path("cgi-bin/user/getuserinfo")
+                .queryParam("access_token", token)
+                .queryParam("code", code);
+        return getWxWebWorkUserByBuilder(builder);
+    }
+
     public WxWebUser getWxWebUserByRefreshToken(String refreshToken) {
         UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
                 .scheme("https").host(wxProperties.getUrl().getHost()).path(wxProperties.getUrl().getGetUserAccessTokenByCode())
@@ -90,6 +99,10 @@ public class WxBaseService {
 
     private WxWebUser getWxWebUserByBuilder(UriComponentsBuilder builder) {
         return wxApiTemplate.getForObject(builder.toUriString(), WxWebUser.class);
+    }
+
+    private WxWebWorkUser getWxWebWorkUserByBuilder(UriComponentsBuilder builder) {
+        return wxApiTemplate.getForObject(builder.toUriString(), WxWebWorkUser.class);
     }
 
     public WxUser getWxUserByWxWebUser(WxWebUser wxWebUser) {

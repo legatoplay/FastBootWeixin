@@ -79,6 +79,16 @@ public class WxUserManager {
         }
         return wxWebUser;
     }
+    public WxWebWorkUser getWebWorkUser(String token,String code) {
+        WxWebWorkUser wxWebUser = null;
+        try {
+            wxWebUser = wxBaseService.getWxWebWorkUserByCode(token,code);
+        } catch (WxApiResultException e) {
+            // 拦截异常，统一返回null
+            logger.error(e.getErrorMessage(), e);
+        }
+        return wxWebUser;
+    }
 
     public WxUser getWxUser(String openId) {
         WxUser wxUser = openIdUserCache.get(openId);

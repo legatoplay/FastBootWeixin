@@ -23,6 +23,7 @@ import com.mxixm.fastboot.weixin.module.message.parameter.WxMessageParameter;
 import com.mxixm.fastboot.weixin.module.message.parameter.WxRequestMessageParameter;
 import com.mxixm.fastboot.weixin.module.web.WxRequest;
 import com.mxixm.fastboot.weixin.web.WxWebUser;
+import com.mxixm.fastboot.weixin.web.WxWebWorkUser;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -51,9 +52,11 @@ public class WxWebUtils {
     public static final String X_WX_REQUEST_URL = "X-Wx-Request-Url";
 
     public static final String WX_SESSION_USER = "WX_SESSION_USER";
+    public static final String WX_SESSION_WORK_USER = "WX_SESSION_WORK_USER";
 
     /**
      * 为了应对多重包装RequestAttributeChangeIgnoringWrapper导致的属性设置无效，这里简单的这样处理了一下
+     *
      * @param request
      * @param wxRequest
      */
@@ -81,8 +84,16 @@ public class WxWebUtils {
         request.getSession().setAttribute(WX_SESSION_USER, wxWebUser);
     }
 
+    public static void setWxWebWorkUserToSession(HttpServletRequest request, WxWebWorkUser wxWebUser) {
+        request.getSession().setAttribute(WX_SESSION_WORK_USER, wxWebUser);
+    }
+
     public static WxWebUser getWxWebUserFromSession(HttpServletRequest request) {
         return (WxWebUser) request.getSession().getAttribute(WX_SESSION_USER);
+    }
+
+    public static WxWebWorkUser getWxWebWorkUserFromSession(HttpServletRequest request) {
+        return (WxWebWorkUser) request.getSession().getAttribute(WX_SESSION_WORK_USER);
     }
 
     /**
@@ -101,6 +112,7 @@ public class WxWebUtils {
 
     /**
      * 同上面方法，不过request从RequestContextHolder中取
+     *
      * @param wxRequest
      */
     public static void setWxRequestToRequest(WxRequest wxRequest) {

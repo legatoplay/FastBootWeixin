@@ -17,6 +17,7 @@
 package com.mxixm.fastboot.weixin.web;
 
 import com.mxixm.fastboot.weixin.module.Wx;
+import com.mxixm.fastboot.weixin.support.MemoryWxTokenStore;
 import com.mxixm.fastboot.weixin.util.WxRedirectUtils;
 import com.mxixm.fastboot.weixin.util.WxWebUtils;
 import org.apache.commons.logging.Log;
@@ -55,6 +56,9 @@ public class WxOAuth2Interceptor implements HandlerInterceptor {
     @Autowired
     private WxUserManager wxUserManager;
 
+    @Autowired
+    private MemoryWxTokenStore memoryWxTokenStore;
+
     public WxOAuth2Interceptor() {
         super();
     }
@@ -66,22 +70,45 @@ public class WxOAuth2Interceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        WxWebUser sessionUser = WxWebUtils.getWxWebUserFromSession(request);
-        if (sessionUser != null) {
-            return true;
+        if (Wx.Environment.instance().isUseWorkWx()) {
+            WxWebWorkUser wxWebWorkUser = WxWebUtils.getWxWebWorkUserFromSession(request);
+            if (wxWebWorkUser != null) {
+                return true;
+            }
+        } else {
+            WxWebUser sessionUser = WxWebUtils.getWxWebUserFromSession(request);
+            if (sessionUser != null) {
+                return true;
+            }
         }
+
         String code = request.getParameter("code");
         String state = request.getParameter("state");
         if (!StringUtils.isEmpty(code)) {
-            WxWebUser wxWebUser = wxUserManager.getWxWebUser(code);
-            if (wxWebUser != null && wxWebUser.getOpenId() != null) {
-                if (wxOAuth2Callback != null) {
-                    wxOAuth2Callback.after(new WxOAuth2Callback.WxOAuth2Context(wxWebUser, state, response, request));
+            //开启企业号配置
+            if (Wx.Environment.instance().isUseWorkWx()) {
+                WxWebWorkUser wxWebWorkUser = wxUserManager.getWebWorkUser(memoryWxTokenStore.get(), code);
+
+                if (wxWebWorkUser != null && wxWebWorkUser.getUserId() != null) {
+//                    if (wxOAuth2Callback != null) {
+//                        wxOAuth2Callback.after(new WxOAuth2Callback.WxOAuth2Context(wxWebUser, state, response, request));
+//                    }
+                    WxWebUtils.setWxWebWorkUserToSession(request, wxWebWorkUser);
+                    // 拿到之后最好是重定向到没有code的页面，否则code会暴露，带来安全问题
+                    // 但本身这个code就是只能用一次的，故暂时不增加一次重定向
+                    return true;
                 }
-                WxWebUtils.setWxWebUserToSession(request, wxWebUser);
-                // 拿到之后最好是重定向到没有code的页面，否则code会暴露，带来安全问题
-                // 但本身这个code就是只能用一次的，故暂时不增加一次重定向
-                return true;
+            } else {
+                WxWebUser wxWebUser = wxUserManager.getWxWebUser(code);
+                if (wxWebUser != null && wxWebUser.getOpenId() != null) {
+                    if (wxOAuth2Callback != null) {
+                        wxOAuth2Callback.after(new WxOAuth2Callback.WxOAuth2Context(wxWebUser, state, response, request));
+                    }
+                    WxWebUtils.setWxWebUserToSession(request, wxWebUser);
+                    // 拿到之后最好是重定向到没有code的页面，否则code会暴露，带来安全问题
+                    // 但本身这个code就是只能用一次的，故暂时不增加一次重定向
+                    return true;
+                }
             }
         }
         String requestUrl = getRequestUrl(request);
@@ -103,6 +130,7 @@ public class WxOAuth2Interceptor implements HandlerInterceptor {
             sb.append(Wx.Environment.instance().getCallbackHost());
             sb.append(uri.getPath());
         }
+        sb.append("?");
         // 强制移除code参数，如果不移除的话，会导致微信跳转回来带两个code参数，这样是有问题的。
         // 原来有 && queryString.contains(CODE_PREFIX)判断，现移除
         String queryString = request.getQueryString();
