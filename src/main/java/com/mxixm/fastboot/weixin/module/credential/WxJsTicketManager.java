@@ -17,6 +17,7 @@
 package com.mxixm.fastboot.weixin.module.credential;
 
 import com.mxixm.fastboot.weixin.exception.WxAppException;
+import com.mxixm.fastboot.weixin.module.Wx;
 import com.mxixm.fastboot.weixin.module.js.WxJsApi;
 import com.mxixm.fastboot.weixin.module.js.WxJsConfig;
 import com.mxixm.fastboot.weixin.service.WxApiService;
@@ -53,6 +54,9 @@ public class WxJsTicketManager extends AbstractWxCredentialManager {
 
     @Override
     protected WxCredential refreshInternal() {
+        if (Wx.Environment.instance().isUseWorkWx()) {
+            return wxApiService.getWorkJsTicket();
+        }
         return wxApiService.getTicket(WxTicket.Type.JS_API);
     }
 
@@ -77,6 +81,7 @@ public class WxJsTicketManager extends AbstractWxCredentialManager {
 
     /**
      * 可以覆盖默认属性，但是一定要添加url，jsApiList之后才能进行构造
+     *
      * @return
      */
     public WxJsConfig.Builder getWxJsConfigBuilder() {
@@ -90,6 +95,7 @@ public class WxJsTicketManager extends AbstractWxCredentialManager {
 
     /**
      * url从referer中构造，默认关闭debug，既然已经这么精简了，那么debug可以视为不需要的
+     *
      * @param wxJsApis
      * @return
      */
@@ -108,6 +114,7 @@ public class WxJsTicketManager extends AbstractWxCredentialManager {
 
     /**
      * url从request中构造，默认关闭debug，既然已经这么精简了，那么debug可以视为不需要的
+     *
      * @param wxJsApis
      * @return
      */

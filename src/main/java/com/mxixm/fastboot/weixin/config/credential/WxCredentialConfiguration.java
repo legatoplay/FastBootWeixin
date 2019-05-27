@@ -17,6 +17,7 @@
 package com.mxixm.fastboot.weixin.config.credential;
 
 import com.mxixm.fastboot.weixin.config.WxProperties;
+import com.mxixm.fastboot.weixin.module.Wx;
 import com.mxixm.fastboot.weixin.module.credential.*;
 import com.mxixm.fastboot.weixin.service.WxApiService;
 import com.mxixm.fastboot.weixin.service.WxBaseService;
@@ -111,6 +112,9 @@ public class WxCredentialConfiguration {
 
     @Bean
     public WxJsTicketManager wxJsTicketManager(WxJsTicketPart wxJsTicketPart, WxJsTicketStore wxJsTicketStore, WxApiService wxApiService) {
+        if(Wx.Environment.instance().isUseWorkWx()){
+            return new WxJsTicketManager(Wx.Environment.instance().getWork().getCorpId(), wxJsTicketPart, wxJsTicketStore, wxApiService);
+        }
         return new WxJsTicketManager(this.wxProperties.getAppid(), wxJsTicketPart, wxJsTicketStore, wxApiService);
     }
 

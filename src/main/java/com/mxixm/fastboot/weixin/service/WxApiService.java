@@ -197,4 +197,10 @@ public interface WxApiService {
 
     WxTicket getTicket(@WxApiParam("type") WxTicket.Type type);
 
+    /**
+     * 获取企业号jsTick
+     * @return
+     */
+    WxTicket getWorkJsTicket();
+
 }
