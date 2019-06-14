@@ -163,7 +163,7 @@ public class WxMenu {
             return group;
         }
 
-        void setGroup(WxButton.Group group) {
+        public void setGroup(WxButton.Group group) {
             this.group = group;
         }
 
@@ -175,11 +175,11 @@ public class WxMenu {
             this.name = name;
         }
 
-        void setMain(boolean main) {
+        public void setMain(boolean main) {
             this.main = main;
         }
 
-        void setOrder(WxButton.Order order) {
+        public void setOrder(WxButton.Order order) {
             this.order = order;
         }
 

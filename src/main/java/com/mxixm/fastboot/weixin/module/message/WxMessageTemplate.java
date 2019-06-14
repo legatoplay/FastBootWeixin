@@ -52,9 +52,9 @@ public class WxMessageTemplate {
         this.wxMessageProcessor = wxMessageProcessor;
     }
 
-    private void sendMessageInternal(WxMessage wxMessage) {
+    private WxGroupMessage.Result sendMessageInternal(WxMessage wxMessage) {
         if (wxMessage == null) {
-            return;
+            return null;
         }
         if (WxUserMessage.class.isAssignableFrom(wxMessage.getClass())) {
             this.wxApiService.sendUserMessage((WxUserMessage) wxMessage);
@@ -62,25 +62,26 @@ public class WxMessageTemplate {
             // 群发消息根据参数不同调用不同的接口
             WxGroupMessage wxGroupMessage = (WxGroupMessage) wxMessage;
             if (CollectionUtils.isEmpty(wxGroupMessage.toUsers)) {
-                this.wxApiService.sendGroupMessage((WxGroupMessage) wxMessage);
+                return this.wxApiService.sendGroupMessage((WxGroupMessage) wxMessage);
             } else if (wxGroupMessage.toUsers.size() > 1) {
-                this.wxApiService.sendUsersMessage((WxGroupMessage) wxMessage);
+                return this.wxApiService.sendUsersMessage((WxGroupMessage) wxMessage);
             } else {
-                this.wxApiService.previewGroupMessage((WxGroupMessage) wxMessage);
+                return this.wxApiService.previewGroupMessage((WxGroupMessage) wxMessage);
             }
         } else if (WxTemplateMessage.class.isAssignableFrom(wxMessage.getClass())) {
             this.wxApiService.sendTemplateMessage((WxTemplateMessage) wxMessage);
         } else {
             logger.error("不能处理的消息类型" + wxMessage);
         }
+        return null;
     }
 
     public void sendMessage(WxMessage wxMessage) {
         this.sendMessage(WxWebUtils.getWxMessageParameter(), wxMessage);
     }
 
-    public void sendMessage(WxMessageParameter wxMessageParameter, WxMessage wxMessage) {
-        this.sendMessageInternal(wxMessageProcessor.process(wxMessageParameter, wxMessage));
+    public WxGroupMessage.Result sendMessage(WxMessageParameter wxMessageParameter, WxMessage wxMessage) {
+        return this.sendMessageInternal(wxMessageProcessor.process(wxMessageParameter, wxMessage));
     }
 
     /**
@@ -146,27 +147,27 @@ public class WxMessageTemplate {
         this.sendMessage(toUser, wxMessageContent);
     }
 
-    public void sendGroupMessage(WxMessage wxMessage) {
-        this.sendMessage(WxWebUtils.getWxMessageParameter(), wxMessage.toGroupMessage());
+    public WxGroupMessage.Result sendGroupMessage(WxMessage wxMessage) {
+        return this.sendMessage(WxWebUtils.getWxMessageParameter(), wxMessage.toGroupMessage());
     }
 
-    public void sendGroupMessage(int tagId, WxMessage wxMessage) {
+    public WxGroupMessage.Result sendGroupMessage(int tagId, WxMessage wxMessage) {
         WxGroupMessage wxGroupMessage = wxMessage.toGroupMessage();
         wxGroupMessage.filter = new WxGroupMessage.Filter();
         wxGroupMessage.filter.tagId = tagId;
         wxGroupMessage.toUsers = null;
-        this.sendGroupMessage(wxMessage);
+        return this.sendGroupMessage(wxMessage);
     }
 
     public void sendMessage(int tagId, WxMessage wxMessage) {
         this.sendGroupMessage(tagId, wxMessage);
     }
 
-    public void sendGroupMessage(Collection<String> toUsers, WxMessage wxMessage) {
+    public WxGroupMessage.Result sendGroupMessage(Collection<String> toUsers, WxMessage wxMessage) {
         WxGroupMessage wxGroupMessage = wxMessage.toGroupMessage();
         wxGroupMessage.filter = null;
         wxGroupMessage.toUsers = toUsers;
-        this.sendGroupMessage(wxMessage);
+        return this.sendGroupMessage(wxMessage);
     }
 
     public void sendMessage(Collection<String> toUsers, WxMessage wxMessage) {

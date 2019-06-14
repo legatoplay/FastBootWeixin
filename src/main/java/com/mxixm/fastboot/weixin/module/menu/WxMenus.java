@@ -103,6 +103,22 @@ public class WxMenus {
     @JsonProperty("conditionalmenu")
     public List<WxMenu> conditionalWxMenu;
 
+    public WxMenu getWxMenu() {
+        return wxMenu;
+    }
+
+    public void setWxMenu(WxMenu wxMenu) {
+        this.wxMenu = wxMenu;
+    }
+
+    public List<WxMenu> getConditionalWxMenu() {
+        return conditionalWxMenu;
+    }
+
+    public void setConditionalWxMenu(List<WxMenu> conditionalWxMenu) {
+        this.conditionalWxMenu = conditionalWxMenu;
+    }
+
     @Override
     public String toString() {
         return "com.mxixm.fastboot.weixin.module.menu.WxMenus(wxMenu=" + this.wxMenu + ", conditionalWxMenu=" + this.conditionalWxMenu + ")";

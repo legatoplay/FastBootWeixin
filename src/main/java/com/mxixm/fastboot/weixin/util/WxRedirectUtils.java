@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2016-2017, Guangshan (guangshan1992@qq.com) and the original author or authors.
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -84,6 +84,10 @@ public class WxRedirectUtils {
     }
 
     public static String redirect(String baseUrl, String url, String state, boolean isBase) {
+        return redirect(baseUrl, url, state, isBase, Wx.Environment.instance().getWxAppId());
+    }
+
+    public static String redirect(String baseUrl, String url, String state, boolean isBase, String appId) {
         boolean isRedirect = true;
         if (url == null) {
             url = "";
@@ -111,7 +115,7 @@ public class WxRedirectUtils {
             // java.io.UnsupportedEncodingException在SB2.0中不再抛出，故兼容下，处理为Exception
             // ignore it
         }
-        return baseBuilder.cloneBuilder().queryParam("appid", Wx.Environment.instance().getWxAppId())
+        return baseBuilder.cloneBuilder().queryParam("appid", appId)
                 .queryParam("redirect_uri", redirectUrl)
                 .queryParam("response_type", "code")
                 .queryParam("scope", isBase ? "snsapi_base" : "snsapi_userinfo")

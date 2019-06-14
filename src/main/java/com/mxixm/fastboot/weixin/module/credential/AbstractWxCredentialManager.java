@@ -16,8 +16,11 @@
 
 package com.mxixm.fastboot.weixin.module.credential;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.concurrent.*;
 
@@ -31,6 +34,8 @@ import java.util.concurrent.*;
  * @since 0.6.0
  */
 public abstract class AbstractWxCredentialManager {
+
+    private static final Log logger = LogFactory.getLog(AbstractWxCredentialManager.class);
 
     private WxCredential.Type type;
 
@@ -54,6 +59,7 @@ public abstract class AbstractWxCredentialManager {
 
     /**
      * 刷新，会判断时间，如果没过期不会刷新
+     *
      * @return 新的凭证
      */
     public String refresh() {
@@ -66,6 +72,8 @@ public abstract class AbstractWxCredentialManager {
                     wxCredentialStore.store(this.type, wxCredential.getCredential(), now + wxCredential.getExpiresIn() * 1000);
                     return wxCredential.getCredential();
                 }
+            } catch (Exception e) {
+                logger.warn("when get wx access token ", e);
             } finally {
                 // 如果加锁成功了，一定要解锁
                 wxCredentialStore.unlock(this.type);
@@ -81,6 +89,7 @@ public abstract class AbstractWxCredentialManager {
 
     /**
      * 强制刷新
+     *
      * @return 新的凭证
      */
     public String forceRefresh() {
@@ -90,6 +99,7 @@ public abstract class AbstractWxCredentialManager {
 
     /**
      * 执行刷新操作
+     *
      * @return
      */
     protected abstract WxCredential refreshInternal();

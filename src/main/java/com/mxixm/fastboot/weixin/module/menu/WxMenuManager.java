@@ -144,8 +144,12 @@ public class WxMenuManager implements EmbeddedValueResolverAware, ApplicationLis
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        this.onApplicationReady();
-        this.mappingMenu();
+        try {
+            this.onApplicationReady();
+            this.mappingMenu();
+        } catch (Exception e) {
+            logger.warn("when init remote menu ", e);
+        }
     }
 
     /**
@@ -250,7 +254,7 @@ public class WxMenuManager implements EmbeddedValueResolverAware, ApplicationLis
      *
      * @param wxMenu
      */
-    private WxMenu processMenu(WxMenu wxMenu) {
+    public WxMenu processMenu(WxMenu wxMenu) {
         // 开始用atomicInteger处理，但是atomic用在多线程中，这里有点过度使用
         int[] index = new int[2];
         wxMenu.mainButtons.forEach(button -> {
