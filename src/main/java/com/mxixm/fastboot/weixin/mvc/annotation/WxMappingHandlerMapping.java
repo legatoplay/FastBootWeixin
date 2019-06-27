@@ -18,21 +18,17 @@ package com.mxixm.fastboot.weixin.mvc.annotation;
 
 import com.mxixm.fastboot.weixin.annotation.*;
 import com.mxixm.fastboot.weixin.module.Wx;
-import com.mxixm.fastboot.weixin.module.event.WxEvent;
 import com.mxixm.fastboot.weixin.module.menu.WxMenu;
 import com.mxixm.fastboot.weixin.module.menu.WxMenuManager;
-import com.mxixm.fastboot.weixin.module.message.WxMessage;
 import com.mxixm.fastboot.weixin.module.message.support.WxAsyncMessageTemplate;
 import com.mxixm.fastboot.weixin.module.web.WxRequest;
 import com.mxixm.fastboot.weixin.module.web.session.WxSessionManager;
-import com.mxixm.fastboot.weixin.mvc.condition.WxRequestCondition;
 import com.mxixm.fastboot.weixin.mvc.converter.WxXmlMessageConverter;
 import com.mxixm.fastboot.weixin.mvc.method.WxAsyncHandlerFactory;
 import com.mxixm.fastboot.weixin.mvc.method.WxMappingHandlerMethodNamingStrategy;
 import com.mxixm.fastboot.weixin.mvc.method.WxMappingInfo;
 import com.mxixm.fastboot.weixin.mvc.method.WxMappingInfos;
 import com.mxixm.fastboot.weixin.service.WxBuildinVerifyService;
-import com.mxixm.fastboot.weixin.util.WildcardUtils;
 import com.mxixm.fastboot.weixin.util.WxWebUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.EmbeddedValueResolverAware;
@@ -40,7 +36,8 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.util.*;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -54,11 +51,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * FastBootWeixin WxMappingHandlerMapping
@@ -120,7 +117,7 @@ public class WxMappingHandlerMapping extends AbstractHandlerMethodMapping<WxMapp
         this.wxMenuManager = wxMenuManager;
         this.wxSessionManager = wxSessionManager;
         this.wxAsyncHandlerFactory = new WxAsyncHandlerFactory(wxAsyncMessageTemplate);
-        this.defaultHandlerMethod = new HandlerMethod((Supplier)(() -> HttpEntity.EMPTY), SUPPLIER_METHOD);
+        this.defaultHandlerMethod = new HandlerMethod((Supplier) (() -> HttpEntity.EMPTY), SUPPLIER_METHOD);
         this.setHandlerMethodMappingNamingStrategy(new WxMappingHandlerMethodNamingStrategy());
         this.wxXmlMessageConverter = wxXmlMessageConverter;
     }
@@ -129,7 +126,7 @@ public class WxMappingHandlerMapping extends AbstractHandlerMethodMapping<WxMapp
     protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
         String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
         // 只接受根目录的请求
-        if (!path.equals(lookupPath)) {
+        if (!path.equals(lookupPath) && (!lookupPath.equals("/index.html"))) {
             if (logger.isDebugEnabled()) {
                 logger.debug("path not match with wxHandlerMapping, path is" + lookupPath);
             }
@@ -240,13 +237,14 @@ public class WxMappingHandlerMapping extends AbstractHandlerMethodMapping<WxMapp
         } else if (count == 1) {
             return getNotNull(wxButtonInfo, wxButtonMappingInfo, wxMessageMappingInfo, wxEventMappingInfo);
         } else {
-           return new WxMappingInfos(wxButtonInfo, wxButtonMappingInfo, wxMessageMappingInfo, wxEventMappingInfo);
+            return new WxMappingInfos(wxButtonInfo, wxButtonMappingInfo, wxMessageMappingInfo, wxEventMappingInfo);
         }
     }
 
     /**
      * 创建@WxButton的信息，这个和其他不同之处在于不需要去找类上的注解，只支持方法级注解
-     * @param method 方法
+     *
+     * @param method      方法
      * @param handlerType 类
      * @return 返回
      */
@@ -420,8 +418,7 @@ public class WxMappingHandlerMapping extends AbstractHandlerMethodMapping<WxMapp
     protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
         if (this.embeddedValueResolver == null) {
             return patterns;
-        }
-        else {
+        } else {
             String[] resolvedPatterns = new String[patterns.length];
             for (int i = 0; i < patterns.length; i++) {
                 resolvedPatterns[i] = this.embeddedValueResolver.resolveStringValue(patterns[i]);
